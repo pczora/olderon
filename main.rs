@@ -5,22 +5,24 @@ enum OpCode {
     SUB,
     MUL,
     DIV,
-    HLT
+    HLT,
+    LOADI(usize, i32)
 }
 
 fn main() {
-    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(2), OpCode::MUL, OpCode::POP];
+    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(2), OpCode::DIV, OpCode::POP, OpCode::LOADI(0, 32)];
     let mut stack: Vec<i32> = Vec::new();
-
+    let mut regs: [i32; 8] = [0, 0, 0, 0, 0, 0, 0, 0]; // TODO: Create constant for number of registers
     let mut pc = 0;
     let running = true;
     while running == true && pc < program.len() {
-        eval(&program[pc], &mut stack);
+        eval(&program[pc], &mut stack, &mut regs);
         pc += 1;
+        print_regs(regs);
     }
 }
 
-fn eval(c: &OpCode, stack: &mut Vec<i32>) {
+fn eval(c: &OpCode, stack: &mut Vec<i32>, regs: &mut [i32; 8]) {
     match c {
         &OpCode::PSH(val) => push(stack, val),
         &OpCode::POP => println!("{}", pop(stack)),
@@ -28,7 +30,8 @@ fn eval(c: &OpCode, stack: &mut Vec<i32>) {
         &OpCode::SUB => sub(stack),
         &OpCode::MUL => mul(stack),
         &OpCode::DIV => div(stack),
-        &OpCode::HLT => println!("HLT")
+        &OpCode::HLT => println!("HLT"),
+        &OpCode::LOADI(reg, val) => loadi(val, reg, regs)
     }
 }
 
@@ -69,4 +72,16 @@ fn div(stack: &mut Vec<i32>) {
     let a = pop(stack);
     let b = pop(stack);
     push(stack, b / a);
+}
+
+fn loadi(val: i32, reg: usize, regs: &mut [i32; 8]) {
+    regs[reg] = val;
+}
+
+fn print_regs(regs: [i32; 8]) {
+    println!("Registers: ");
+    for reg in regs.iter() {
+        println!("{}", reg);
+    }
+    println!("");
 }
