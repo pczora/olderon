@@ -5,33 +5,51 @@ enum OpCode {
     SUB,
     MUL,
     DIV,
-    HLT,
-    LOADI(usize, i32)
+    HLT
 }
 
-fn main() {
-    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(2), OpCode::DIV, OpCode::POP, OpCode::LOADI(0, 32)];
-    let mut stack: Vec<i32> = Vec::new();
-    let mut regs: [i32; 8] = [0, 0, 0, 0, 0, 0, 0, 0]; // TODO: Create constant for number of registers
-    let mut pc = 0;
-    let running = true;
-    while running == true && pc < program.len() {
-        eval(&program[pc], &mut stack, &mut regs);
-        pc += 1;
-        print_regs(regs);
+struct MachineState {
+    stack: Vec<i32>,
+    pc: usize,
+    running: bool,
+    program: Vec<OpCode>
+}
+
+impl MachineState {
+    fn new(program: Vec<OpCode>) -> MachineState {
+        MachineState {
+            stack: Vec::new(),
+            pc: 0,
+            running: false,
+            program: program
+        }
+    }
+
+    fn fetch(&self) -> &OpCode {
+        &self.program[self.pc]
     }
 }
 
-fn eval(c: &OpCode, stack: &mut Vec<i32>, regs: &mut [i32; 8]) {
-    match c {
-        &OpCode::PSH(val) => push(stack, val),
-        &OpCode::POP => println!("{}", pop(stack)),
-        &OpCode::ADD => add(stack),
-        &OpCode::SUB => sub(stack),
-        &OpCode::MUL => mul(stack),
-        &OpCode::DIV => div(stack),
+fn main() {
+    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(2), OpCode::DIV, OpCode::POP];
+    let mut state: MachineState = MachineState::new(program);
+
+    state.running = true;
+    while state.running == true && state.pc < state.program.len() {
+        eval(&mut state);
+        state.pc += 1;
+    }
+}
+
+fn eval(state: &mut MachineState) {
+    match state.fetch() {
+        &OpCode::PSH(val) => push(&mut state.stack, val),
+        &OpCode::POP => println!("{}", pop(&mut state.stack)),
+        &OpCode::ADD => add(&mut state.stack),
+        &OpCode::SUB => sub(&mut state.stack),
+        &OpCode::MUL => mul(&mut state.stack),
+        &OpCode::DIV => div(&mut state.stack),
         &OpCode::HLT => println!("HLT"),
-        &OpCode::LOADI(reg, val) => loadi(val, reg, regs)
     }
 }
 
@@ -74,14 +92,6 @@ fn div(stack: &mut Vec<i32>) {
     push(stack, b / a);
 }
 
-fn loadi(val: i32, reg: usize, regs: &mut [i32; 8]) {
-    regs[reg] = val;
-}
-
-fn print_regs(regs: [i32; 8]) {
-    println!("Registers: ");
-    for reg in regs.iter() {
-        println!("{}", reg);
-    }
-    println!("");
+fn jmp(addr: usize) {
+//TODO: implement
 }
