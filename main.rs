@@ -42,14 +42,14 @@ fn main() {
 }
 
 fn eval(state: &mut MachineState) {
-    match state.fetch() {
-        &OpCode::PSH(val) => push(&mut state.stack, val),
-        &OpCode::POP => println!("{}", pop(&mut state.stack)),
-        &OpCode::ADD => add(&mut state.stack),
-        &OpCode::SUB => sub(&mut state.stack),
-        &OpCode::MUL => mul(&mut state.stack),
-        &OpCode::DIV => div(&mut state.stack),
-        &OpCode::HLT => println!("HLT"),
+    match *state.fetch() {
+        OpCode::PSH(val) => push(&mut state.stack, val),
+        OpCode::POP => println!("{}", pop(&mut state.stack)),
+        OpCode::ADD => add(&mut state.stack),
+        OpCode::SUB => sub(&mut state.stack),
+        OpCode::MUL => mul(&mut state.stack),
+        OpCode::DIV => div(&mut state.stack),
+        OpCode::HLT => println!("HLT"),
     }
 }
 
