@@ -50,7 +50,7 @@ fn eval(state: &mut MachineState) {
         OpCode::SUB => sub(&mut state.stack),
         OpCode::MUL => mul(&mut state.stack),
         OpCode::DIV => div(&mut state.stack),
-        OpCode::JMP(addr) => jmp(&mut state),
+        OpCode::JMP(addr) => jmp(state, addr),
         OpCode::HLT => println!("HLT")
     }
 }
@@ -95,5 +95,5 @@ fn div(stack: &mut Vec<i32>) {
 }
 
 fn jmp(state: &mut MachineState, addr: usize) {
-    *state.pc = addr;
+    state.pc = addr;
 }
