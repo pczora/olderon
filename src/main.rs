@@ -5,6 +5,7 @@ enum OpCode {
     SUB,
     MUL,
     DIV,
+    JMP(usize),
     HLT
 }
 
@@ -49,7 +50,8 @@ fn eval(state: &mut MachineState) {
         OpCode::SUB => sub(&mut state.stack),
         OpCode::MUL => mul(&mut state.stack),
         OpCode::DIV => div(&mut state.stack),
-        OpCode::HLT => println!("HLT"),
+        OpCode::JMP(addr) => jmp(&mut state),
+        OpCode::HLT => println!("HLT")
     }
 }
 
@@ -92,6 +94,6 @@ fn div(stack: &mut Vec<i32>) {
     push(stack, b / a);
 }
 
-fn jmp(addr: usize) {
-//TODO: implement
+fn jmp(state: &mut MachineState, addr: usize) {
+    *state.pc = addr;
 }
