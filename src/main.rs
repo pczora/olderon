@@ -6,9 +6,11 @@ enum OpCode {
     MUL,
     DIV,
     JMP(usize),
+    JMPEQ(usize),
     HLT
 }
 
+/// Represents the state of the virtual machine
 struct MachineState {
     stack: Vec<i32>,
     pc: usize,
@@ -32,12 +34,13 @@ impl MachineState {
 }
 
 fn main() {
-    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(2), OpCode::DIV, OpCode::POP];
+    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(4), OpCode::JMPEQ(5), OpCode::PSH(2), OpCode::POP, OpCode::HLT];
     let mut state: MachineState = MachineState::new(program);
 
     state.running = true;
     while state.running == true && state.pc < state.program.len() {
         eval(&mut state);
+        //print_stack(&state.stack);
         state.pc += 1;
     }
 }
@@ -45,12 +48,13 @@ fn main() {
 fn eval(state: &mut MachineState) {
     match *state.fetch() {
         OpCode::PSH(val) => push(&mut state.stack, val),
-        OpCode::POP => println!("{}", pop(&mut state.stack)),
+        OpCode::POP => println!("POP: {}", pop(&mut state.stack)),
         OpCode::ADD => add(&mut state.stack),
         OpCode::SUB => sub(&mut state.stack),
         OpCode::MUL => mul(&mut state.stack),
         OpCode::DIV => div(&mut state.stack),
         OpCode::JMP(addr) => jmp(state, addr),
+        OpCode::JMPEQ(addr) => jmpeq(state, addr),
         OpCode::HLT => println!("HLT")
     }
 }
@@ -95,5 +99,21 @@ fn div(stack: &mut Vec<i32>) {
 }
 
 fn jmp(state: &mut MachineState, addr: usize) {
-    state.pc = addr;
+    state.pc = addr - 1; // We need to subtract here because the PC is incremented after evaluating the JMP instruction
+}
+
+fn jmpeq(state: &mut MachineState, addr: usize) {
+    sub(&mut state.stack);
+    if pop(&mut state.stack) == 0 { // If the top two stack elements are equal, their difference is 0
+        jmp(state, addr);
+    }
+}
+
+/// Prints the stack for debugging purposes
+fn print_stack(stack: &Vec<i32>) {
+    println!("=== STACK ===");
+    for element in stack.iter().rev() { // Iterate backwards through the vector (top element is the last element in the vector)
+        println!("{}", element);
+    }
+    println!("");
 }
