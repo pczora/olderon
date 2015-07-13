@@ -1,39 +1,9 @@
-enum OpCode {
-    PSH(i32),
-    POP,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    JMP(usize),
-    JMPEQ(usize),
-    HLT
-}
-
-/// Represents the state of the virtual machine
-struct MachineState {
-    stack: Vec<i32>,
-    pc: usize,
-    running: bool,
-    program: Vec<OpCode>
-}
-
-impl MachineState {
-    fn new(program: Vec<OpCode>) -> MachineState {
-        MachineState {
-            stack: Vec::new(),
-            pc: 0,
-            running: false,
-            program: program
-        }
-    }
-
-    fn fetch(&self) -> &OpCode {
-        &self.program[self.pc]
-    }
-}
+use std::env;
+mod machine_state;
+use machine_state::{OpCode, MachineState};
 
 fn main() {
+    let args: Vec<_> = env::args().collect(); //TODO: parse program from file
     let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(4), OpCode::JMPEQ(5), OpCode::PSH(2), OpCode::POP, OpCode::HLT];
     let mut state: MachineState = MachineState::new(program);
 
