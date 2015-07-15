@@ -1,12 +1,15 @@
-use std::env;
 mod machine_state;
+mod fileparser;
+use std::env;
 use machine_state::{OpCode, MachineState};
+use fileparser::parse;
 
 fn main() {
-    let args: Vec<_> = env::args().collect(); //TODO: parse program from file
+    for argument in env::args() {
+        parse(&argument); //TODO: Actually parse the files given as CL parameters and execute the contained code
+    }
     let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(4), OpCode::JMPEQ(5), OpCode::PSH(2), OpCode::POP, OpCode::HLT];
     let mut state: MachineState = MachineState::new(program);
-
     state.running = true;
     while state.running == true && state.pc < state.program.len() {
         eval(&mut state);
