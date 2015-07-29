@@ -4,18 +4,18 @@ use std::env;
 use machine_state::{OpCode, MachineState};
 use fileparser::parse;
 
+extern crate regex;
 fn main() {
-    for argument in env::args() {
-        parse(&argument); //TODO: Actually parse the files given as CL parameters and execute the contained code
-    }
-    let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(4), OpCode::JMPEQ(5), OpCode::PSH(2), OpCode::POP, OpCode::HLT];
+    let arguments: Vec<String> = env::args().collect();
+    let program: Vec<OpCode> = parse(&arguments[1]);
+    //let program: Vec<OpCode> = vec![OpCode::PSH(4), OpCode::PSH(4), OpCode::JMPEQ(5), OpCode::PSH(2), OpCode::POP, OpCode::HLT];
     let mut state: MachineState = MachineState::new(program);
     state.running = true;
     while state.running == true && state.pc < state.program.len() {
         eval(&mut state);
-        //print_stack(&state.stack);
         state.pc += 1;
     }
+    print_stack(&state.stack);
 }
 
 fn eval(state: &mut MachineState) {

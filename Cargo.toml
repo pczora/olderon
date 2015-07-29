@@ -3,3 +3,6 @@
 name = "olderon"
 version = "0.0.1"
 authors = ["Philipp Czora <pczora@googlemail.com"]
+
+[dependencies]
+regex = "0.1.8"
